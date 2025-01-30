@@ -71,6 +71,11 @@ export class Service {
 					package: split[0],
 					version: split[1],
 				};
+			case 3:
+				return {
+					type: 'archive',
+					package: (split[0].includes('/') ? split[0].split('/')[0] + '-' : '') + split[2],
+				};
 		}
 		return undefined;
 	}
