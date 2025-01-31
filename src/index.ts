@@ -100,13 +100,16 @@ function runNpmInstall(): Promise<void> {
 function printHelpInformation() {
 	console.log("   usage: index [ npm files | npm tarball directories ] ... [npm run options] ");
 	console.log("--help    prints this help message");
+	console.log("--debug   starts service and listens on localhost until killed")
 }
 
-function mainEntryFunction(): Promise<void> {
+function mainEntryFunction(): Promise<any> {
 	if (argv.includes("--help")) {
 		printHelpInformation();
 		return;
 	}
+
+	const isDebug = argv.includes("--debug")
 
 	const registry = new Registry();
 	registry.addBackend(new TarballRegistryBackend);
@@ -114,9 +117,13 @@ function mainEntryFunction(): Promise<void> {
 	const service = new Service({url: new URL("http://localhost")});
 	registry.serviceProvider = service;
 
-	return registerTarballsFromCommandline(registry)
+	const s = registerTarballsFromCommandline(registry)
 	.then(() => setupServerAndGetPort(service, registry))
-	.then(port => configureNpmToSpecificLocalhostPort(service, port))
+
+	if (isDebug)
+		return
+
+	return s.then(port => configureNpmToSpecificLocalhostPort(service, port))
 	.then(() => runNpmInstall())
 	.then(() => {
 		console.log("npm done. Shutting down proxy");
