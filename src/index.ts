@@ -90,7 +90,7 @@ function runNpmInstall(): Promise<void> {
 	}
 
 	return new Promise((accept, reject) => {
-		spawn("npm", install_options, {stdio: 'inherit'})
+		spawn("npm", install_options.concat("--no-package-lock") , {stdio: 'inherit'})
 		.on("exit", (code) => {
 			code === 0 ? accept() : reject("NPM returned code: " + code);
 		});
