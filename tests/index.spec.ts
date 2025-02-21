@@ -70,10 +70,28 @@ it("runs npm install with nothing and exits", async function() {
 		msg += message;
 	});
 	await mainEntryFunction();
+	console_log.mockRestore();
 
 	expect(msg).not.toContain("--help");
 	expect(msg).not.toContain("help message");
 	expect(msg).toContain("npm install skipped");
 	expect(msg).toContain("error occurred");
 	expect(await checkRegistryRemoved()).toContain(default_registry);
+})
+
+it("skips install if env QUILT_COMMAND is 'setup'", async function() {
+	let msg = "";
+	const console_log = jest.spyOn(console, "log").mockImplementation((message) => {
+		msg += message;
+	})
+	process.env.QUILT_COMMAND="setup";
+
+	await mainEntryFunction();
+
+	console_log.mockRestore();
+	delete process.env.QUILT_COMMAND;
+
+	expect(msg).toContain("Run in quilt setup mode");
+	expect(msg).not.toContain("help message");
+	expect(msg).not.toContain("error occurred");
 })

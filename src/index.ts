@@ -20,6 +20,7 @@
 import { argv } from 'process'
 import { spawn } from 'child_process'
 import { URL } from 'url';
+import { env } from 'process'
 
 import { Registry } from './registry';
 import { Service } from './service';
@@ -104,6 +105,11 @@ function printHelpInformation() {
 }
 
 function mainEntryFunction(): Promise<any> {
+	if (env.QUILT_COMMAND === "setup") {
+		console.log("Run in quilt setup mode. 'npm install' skipped. Run 'npm ci' manually.");
+		return;
+	}
+
 	if (argv.includes("--help")) {
 		printHelpInformation();
 		return;
@@ -138,8 +144,9 @@ function mainEntryFunction(): Promise<any> {
 	})
 }
 
-if (require.main === module)
+if (require.main === module) {
 	mainEntryFunction();
+}
 
 export { mainEntryFunction }
 
